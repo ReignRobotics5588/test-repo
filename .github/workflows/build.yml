@@ -1,0 +1,28 @@
+# Builds the code and runs the unit tests on every push and pull request, so broken code is caught
+# before it reaches the robot.
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # WPILib 2026 uses Java 17. Change this to 25 when moving to WPILib 2027 (Systemcore).
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build and test
+        run: ./gradlew build
+
+      # Fails the build if any Java file is not formatted. Run "./gradlew spotlessApply" to fix.
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
